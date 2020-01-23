@@ -34,3 +34,17 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   }
   
 }
+
+
+ricSW <- function(x,q,r,p){
+  Mx=apply(x, 2, mean)
+  Wx=diag(apply(x, 2, sd))
+}
+
+
+center <- function(x){
+  T <- dim(x)[1]
+  N <- dim(x)[2]
+  xc <- x-(matrix(1, nrow = T, ncol = N) %*% diag(apply(z, 2, sum)/T))
+  return(xc)
+}
