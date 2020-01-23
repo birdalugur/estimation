@@ -1,7 +1,11 @@
 FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   "
   x <- matrix(1:12, nrow = 3, ncol = 4)
-  x : Matrix "
+  x : Matrix
+  T : number of columns
+  N : number of rows
+  das : number of nan's in columns
+  m : maximum value in das"
   
   T <- dim(x)[1]
   N <- dim(x)[2]
@@ -11,10 +15,22 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   m <- max(das)
   
   if (nargs()<5){
-    #statement1
+    selected_num_row <- T-m
+    z <- x[1:selected_num_row,]
+    ss <- apply(z, 2, sd)
+    MM <- apply(z, 2, mean)
+    s <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(ss)
+    M <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(MM)
+    x = (x - M)/s
+    z <- x[1:selected_num_row,]
+    
+    #[A, C, Q, R, initx, initV] = ricSW(z,q,r,p);
   }
   else{
-    #statement2
+    s <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(ss)
+    M <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(MM)
+    x = (x - M)/s
+    z <- x[1:selected_num_row,]
   }
   
 }
