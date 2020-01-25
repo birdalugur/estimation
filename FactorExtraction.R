@@ -1,4 +1,5 @@
 library(pracma)
+library(Matrix)
 
 FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   "
@@ -67,7 +68,14 @@ ricSW <- function(x,q,r,p){
   Q[1:r,1:r] <- diag(r)
   OPTS.disp = 0
   
-  #cor(x)
+  "NOT -------------d'nin köşegen matris olması gerekiyor"
+  result_eigs <- eigs(cov(A),k=2,which = "LM")	# computes eigenvalues and eigenvectors of the var-covariance 
+  d <- result_eigs$values
+  v <- result_eigs$vectors
+  
+  # matrix of the data, x.
+  # d is a rxr diagonal matrix with the 10 largest eigenvalues on the diagonal. 
+  # v is a nxr matrix of the eigenvectors that corresponds to the eigenvalues.
 }
 
 
@@ -77,5 +85,6 @@ center <- function(x){
   xc <- x-(matrix(1, nrow = T, ncol = N) %*% diag(apply(x, 2, sum)/T))
   return(xc)
 }
+
 
 
