@@ -1,9 +1,17 @@
+setwd("/home/ugur/r-projects/estimation/")
 library(pracma)
 library(Matrix)
 library(RSpectra)
+library(rmatio)
 
 # NOT ----------
 # eigs fonksiyonları kontrol edilmeli
+
+data<-read.mat('data.mat')
+x <- data$X
+p <- data$p
+q <- data$q
+r <- data$r
 
 FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   "
@@ -31,7 +39,14 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
     x = (x - M)/s
     z <- x[1:selected_num_row,]
     
-    #[A, C, Q, R, initx, initV] = ricSW(z,q,r,p);
+    
+    result_ricsw <- ricSW(z,q,r,p)
+    A <- result_ricsw$A
+    C <- result_ricsw$C
+    Q <- result_ricsw$Q
+    R <- result_ricsw$R
+    initx <- result_ricsw$initx
+    initV <- result_ricsw$initV
   }
   else{
     s <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(ss)
@@ -40,17 +55,27 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
     z <- x[1:selected_num_row,]
   }
   
+  # The signal extraction in presence of missing data is performed by
+  # using a time varying Kalman filter in which missing data are assigned an
+  # extremely large variance of the noise in idiosyncratic component.
+  
+  # Define the parameters of the time varying state space model... time is
+  # on the 3rd dimension
 }
 
 
 ricSW <- function(x,q,r,p){
-  Mx=apply(x, 2, mean)
-  Wx=diag(apply(x, 2, sd))
-  x=center(x)%*%inv(Wx)
+  # %ricSW(z,q,r,p);
+  # Computes the parameters of the factor models 
+  # REMARK: the parameters C and R refer to the standardized variables.
+  
+  Mx=apply(x, 2, mean) # Mean
+  Wx=diag(apply(x, 2, sd)) # Standard deviation
+  x=center(x)%*%inv(Wx) # Standardize
   
   OPTS.disp = 0
     
-  T <- dim(x)[1]
+  T <- dim(x)[1]  # size of the database
   N <- dim(x)[2]
   
   if (r < q) {
@@ -78,16 +103,16 @@ ricSW <- function(x,q,r,p){
   
   
   result_eigs <- eigs(cov(x),k=r,which = "LM")	# computes eigenvalues and eigenvectors of the var-covariance 
-  d <- diag(length(result_eigs$values))*result_eigs$values
-  v <- result_eigs$vectors
-  "v nin 1. sütununun işareti yanlış -> v[,1]=v[,1]*-1 "
-  v[,1]=v[,1]*-1
-  
   # matrix of the data, x.
   # d is a rxr diagonal matrix with the 10 largest eigenvalues on the diagonal. 
   # v is a nxr matrix of the eigenvectors that corresponds to the eigenvalues.
+  d <- diag(length(result_eigs$values))*result_eigs$values
+  v <- result_eigs$vectors
+  v[,1]=v[,1]*-1
   
-  F <- x%*%v
+  
+  
+  F <- x%*%v  # PC estimates of the common factors
   
   ' cov fonksiyonu aynı girdiye farklı çıktılar verebilir(matlab cov dan farklı) !'
   R <- diag(diag(cov((x-x%*%v%*%t(v))))) #Estimate of the covariance matrix of the idiosincratic component
@@ -96,8 +121,6 @@ ricSW <- function(x,q,r,p){
   if (p>0) { 
     #ESTIMATE the AUTOregressive model for the Factors: run the var F(t) = A_1*F(t-1)+...+A_p*F(t-1) + e(t);
     z = F
-    "Matris satırlarının sayısı eşleşmeli ! ! ! !"
-    ############################################# HATALI ##
     #Z<-matrix(, nrow = size(z)[1], ncol = 0)
     Z <- c()
     for (kk in 1:1){
@@ -146,7 +169,7 @@ ricSW <- function(x,q,r,p){
   if (p > 0){
     z <- F
     Z <- c()
-    for (kk in 1:nlag){  'for döngüsü kontrol edilmeli'
+    for (kk in 0:nlag){  
       Z <- cbind(Z,z[(nlag-kk+1):(size(z)[1]-kk),]) # stacked regressors (lagged SPC)
       
     }
@@ -157,7 +180,9 @@ ricSW <- function(x,q,r,p){
     initx <- c()
     initv <- c()
   }
-  C <- cbind(v,matrix(0L, nrow = N, ncol = r*nlag))
+  C <- cbind(v,matrix(0L, nrow = N, ncol = r*nlag)) # Cov(data,factors); recall nlag = 0.
+  
+  return(list(A=A, C=C, Q=Q, R=R, initx=initx, initV=initV, Mx=Mx, Wx=Wx))
 }
 
 
@@ -167,6 +192,5 @@ center <- function(x){
   xc <- x-(matrix(1, nrow = T, ncol = N) %*% diag(apply(x, 2, sum)/T))
   return(xc)
 }
-
 
 
