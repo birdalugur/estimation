@@ -4,8 +4,6 @@ library(Matrix)
 library(RSpectra)
 library(rmatio)
 
-# NOT ----------
-# eigs fonksiyonları kontrol edilmeli
 
 data<-read.mat('data.mat')
 x <- data$X
@@ -22,18 +20,50 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   das : number of nan's in columns
   m : maximum value in das"
   
-  T <- dim(x)[1]
+  # function [F,VF,A,C,Q,R,initx,initV,ss,MM] = FactorExtraction(x,q,r,p,A,C,Q,R,initx,initV,ss,MM);
+  # extract common factors from vector of time series possibly unbalanced
+  # at the end of the sample, (NaN for missing observations)
+  
+  #The model
+  #x_t = C F_t + \xi_t
+  #F_t = AF_{t-1} + B u_t
+  #R = E(\xi_t \xi_t')
+  # Q = BB'
+  # u_t ~ WN(0,I_q)
+  # initx = F_0
+  # initV = E(F_0 F_0')
+  # ss: std(x) 
+  # MM: mean(x)
+  
+  # q: dynamic rank
+  # r: static rank (r>=q)
+  # p: ar order of the state vector (default p=1)
+  
+  # F : estimated factors
+  # VF: estimation variance for the common factors
+  
+  T <- dim(x)[1]  # dimension of the panel
   N <- dim(x)[2]
+  
+  # Construct the balanced panel z from the original panel x
+  # NOTES: sum(isnan(x)) computes the number of NaNs in each column 
+  # of x and stores that number in a cell in a row vector, das.
   
   das <- colSums(is.na(x))
   
   m <- max(das)
   
   if (nargs()<5){
+    # Estimate the parameters, if they are not provided, by simple regrssion on
+    # Principal components estimates of the common factors (based on the balanced part of the panel)
+    
+    
     selected_num_row <- T-m
-    z <- x[1:selected_num_row,]
-    ss <- apply(z, 2, sd)
+    z <- x[1:selected_num_row,] # so z is the matrix with # of rows = T-m (all rows with any NaNs are excluded)
+    ss <- apply(z, 2, sd) # computes stdev of each column of data.
     MM <- apply(z, 2, mean)
+    
+    # STEP:  Standardize the panel
     s <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(ss)
     M <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(MM)
     x = (x - M)/s
@@ -48,7 +78,7 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
     initx <- result_ricsw$initx
     initV <- result_ricsw$initV
   }
-  else{
+  else{ #if the parameters are given, just standardize the variables with the mean and std computed over the balanced panel.
     s <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(ss)
     M <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(MM)
     x = (x - M)/s
@@ -61,6 +91,10 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   
   # Define the parameters of the time varying state space model... time is
   # on the 3rd dimension
+  
+  for (jt in 1:T){
+    #expressions
+  }
 }
 
 
@@ -192,5 +226,3 @@ center <- function(x){
   xc <- x-(matrix(1, nrow = T, ncol = N) %*% diag(apply(x, 2, sum)/T))
   return(xc)
 }
-
-
