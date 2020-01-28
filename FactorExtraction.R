@@ -57,9 +57,13 @@ ricSW <- function(x,q,r,p){
     message('q has to be less or equal to r')
   }
   
-  nlag <- p-1
-  A_temp <- matrix(0L, nrow = r, ncol = r*p) 
-  I <- diag(r*p)
+  nlag <- p-1 # p=1, so nlag = 0.
+  
+  # Define some preliminary quantity that are necessary to writhe the VAR in companion form
+  A_temp <- matrix(0L, nrow = r, ncol = r*p)  # a zero matrix,
+  I <- diag(r*p) # identity matrix,
+  
+  # NOTE: if p=1, then I(1:end-r,1:end) is empty. In this case, MATLAB reads A as equal to A_temp.
   end_I <- dim(I)[1]-r
   if (end_I != 0){
     A <- rbind(t(A_temp),I[1:end_I-r,])
@@ -68,15 +72,15 @@ ricSW <- function(x,q,r,p){
     A <- rbind(t(A_temp),I[0,])
   }
   
-  Q <- matrix(0L, nrow = r*p, ncol = r*p) 
-  Q[1:r,1:r] <- diag(r)
+  Q <- matrix(0L, nrow = r*p, ncol = r*p)  #a zero matrix, 10x10.
+  Q[1:r,1:r] <- diag(r) #identity of size=10. 
   OPTS.disp = 0
   
-  "v nin 1. sütununun işareti yanlış -> v[,1]=v[,1]*-1 "
+  
   result_eigs <- eigs(cov(x),k=r,which = "LM")	# computes eigenvalues and eigenvectors of the var-covariance 
   d <- diag(length(result_eigs$values))*result_eigs$values
   v <- result_eigs$vectors
-  
+  "v nin 1. sütununun işareti yanlış -> v[,1]=v[,1]*-1 "
   v[,1]=v[,1]*-1
   
   # matrix of the data, x.
@@ -86,7 +90,7 @@ ricSW <- function(x,q,r,p){
   F <- x%*%v
   
   ' cov fonksiyonu aynı girdiye farklı çıktılar verebilir(matlab cov dan farklı) !'
-  R <- diag(diag(cov((x-x%*%v%*%t(v)))))
+  R <- diag(diag(cov((x-x%*%v%*%t(v))))) #Estimate of the covariance matrix of the idiosincratic component
   # REMARK: x*v*v' is the projection of x over the principal components (F=x*v)
 
   if (p>0) { 
@@ -101,9 +105,8 @@ ricSW <- function(x,q,r,p){
     }
     ##############################################
     z<-z[(p+1):size(z)[1],]
-    
-    A_temp <- (inv(t(Z)%*%Z)%*%t(Z))%*%z
-    A[1:r,1:r*p] = t(A_temp) #OLS estimator of the VAR transition matrix
+    A_temp <- (inv(t(Z)%*%Z)%*%t(Z))%*%z #OLS estimator of the VAR transition matrix
+    A[1:r,1:r*p] = t(A_temp) 
     
     # Compute Q
     e <- z-Z%*%A_temp # VAR residuals
@@ -113,7 +116,7 @@ ricSW <- function(x,q,r,p){
       # The covariance matrix of the VAR residuals is of full rank
       Q[1:r,1:r] = H
     }
-    else{
+    else{ 'Bu blok kontrol edilmeli '
       # The covariance matrix of the VAR residuals has reduced rank
       res_ed <- eigs(H,k=2,which = "LM") # eigenvalue decomposition
       P <- res_ed$vectors
@@ -143,16 +146,18 @@ ricSW <- function(x,q,r,p){
   if (p > 0){
     z <- F
     Z <- c()
-    for (kk in 1:nlag){
+    for (kk in 1:nlag){  'for döngüsü kontrol edilmeli'
       Z <- cbind(Z,z[(nlag-kk+1):(size(z)[1]-kk),]) # stacked regressors (lagged SPC)
-      initx <- t(t(Z[1,]))
+      
     }
+    initx <- t(t(Z[1,]))
+    initV <- matrix((pinv(diag(size(kron(A,A),1))-kron(A,A)) %*% (matrix(as.vector(Q),  ncol = 1))),r*p,r*p) # initV = cov(Z); %eye(r*(nlag+1))
   }
   else{
     initx <- c()
     initv <- c()
   }
-  
+  C <- cbind(v,matrix(0L, nrow = N, ncol = r*nlag))
 }
 
 
