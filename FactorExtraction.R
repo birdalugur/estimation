@@ -92,10 +92,20 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   # Define the parameters of the time varying state space model... time is
   # on the 3rd dimension
   
+  AA <- (array(c(A),dim = c(dim(A),T)))
+  QQ <- (array(c(Q),dim = c(dim(Q),T)))
+  CC <- (array(c(C),dim = c(dim(C),T)))
+  RR <- (array(c(R),dim = c(dim(R),T)))
+  
+  
   for (jt in 1:T){
-    'for döngüsü tamamlanmalı'
-    #expressions
+    miss <- is.nan(x[jt,])
+    Rtemp <- matrix(diag(R),ncol = 1)
+    Rtemp[miss] = 1e+32
+    RR[,,jt] =  diag(c(Rtemp))
   }
+  
+  
   xx<- x
   xx[is.nan(x)] = 0 # missing data are assigned an arbitrary value...
   
