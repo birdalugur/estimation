@@ -123,8 +123,33 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   F <-  t(xsmooth)
 }
 
-kalman_smoother_diag <- function(){
-  #expressions
+kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
+  # Adapted from programs by Zoubin Ghahramani and Geoffrey E. Hinton, available at http://www.gatsby.ucl.ac.uk/ zoubin, 1996.
+  # Kalman/RTS smoother.
+  # [xsmooth, Vsmooth, VVsmooth, loglik] = kalman_smoother_diag(y, A, C, Q, R, init_x, init_V, ...)
+  #
+  # The inputs are the same as for kalman_filter.
+  # The outputs are almost the same, except we condition on y(:, 1:T) (and u(:, 1:T) if specified),
+  # instead of on y(:, 1:t).
+  
+  os <- size(y)[1]
+  T <- size(y)[2]
+  ss <- size(A,1)
+  
+  # set default params
+  
+  model <- matrix(1, nrow = 1, ncol = T)
+  
+  u <- c()
+  B <- c()
+  
+  arguments <- list(...)
+  n_arguments <- length(arguments)
+  
+  for (i in seq(1,n_arguments,by=2)){
+    
+  }
+  
 }
 
 ricSW <- function(x,q,r,p){
