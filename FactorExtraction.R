@@ -147,6 +147,34 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   n_arguments <- length(arguments)
   
   for (i in seq(1,n_arguments,by=2)){
+    switch (
+      arguments[1],
+            'model' = { model <- arguments[i+1] },
+            'u' = { u <- arguments[i+1] },
+            'B' = { B <- arguments[i+1] },
+            { stop('unrecognized argument ',arguments[i]) } 
+      )
+    
+  }
+  
+  xsmooth <- matrix(0L, nrow = ss, ncol = T)
+  Vsmooth <- (array(c(0),dim = c(2,2,T)))
+  VVsmooth <- (array(c(0),dim = c(2,2,T)))
+  
+  # Forward pass
+  kfd_result <- kalman_filter_diag(y, A, C, Q, R, init_x, init_V, 'model', model, 'u', u, 'B', B)
+  xfilt  <- kfd_result$xfilt
+  Vfilt  <- kfd_result$Vfilt
+  VVfilt <- kfd_result$VVfilt
+  loglik <- kfd_result$loglik
+  
+  'KONTROL EDİLECEK !!!!!!!!!!!!!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<< LINE 171'
+  # Backward pass
+  xsmooth[,T] = xfilt[,T]
+  Vsmooth[,,T] = Vfilt[,,T]
+  #VVsmooth[,,T] = Vfilt[,,T]
+  
+  for (t in T:1) {
     
   }
   
