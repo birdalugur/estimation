@@ -69,6 +69,9 @@ kalman_filter_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   'BURADA m DEĞERİNİ 0 ALGILIYOR ! '
   for (t in 1:T){
     m <- model[t]
+    print(m)
+    print('-----------------')
+    print(A[, ,m])
     if (t == 1){
       # prevx <- init_x[,m]
       # prevV <- init_V[, ,m]
