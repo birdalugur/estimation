@@ -123,6 +123,12 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   F <-  t(xsmooth)
 }
 
+
+
+
+
+
+
 kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   # Adapted from programs by Zoubin Ghahramani and Geoffrey E. Hinton, available at http://www.gatsby.ucl.ac.uk/ zoubin, 1996.
   # Kalman/RTS smoother.
@@ -175,8 +181,44 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   #VVsmooth[,,T] = Vfilt[,,T]
   
   for (t in T:1) {
-    
+    m <- model[t+1]
+    if (isempty(B)){
+      #statement1
+      cbind(xsmooth[,t,drop=FALSE], Vsmooth[,,t], VVsmooth[,,t]) = smooth_update(
+        xsmooth[,t+1,drop=FALSE],
+        Vsmooth[,,t+1],
+        xfilt[,t],
+        Vfilt[,,t],
+        Vfilt[,,t+1],
+        VVfilt[,,t+1],
+        A[,,m],
+        Q[,,m],
+        c(),
+        c()
+      )
+        
+        
+    }
+    else{
+      cbind(xsmooth[,t,drop=FALSE], Vsmooth[,,t], VVsmooth[,,t]) = smooth_update(
+        xsmooth[,t+1,drop=FALSE],
+        Vsmooth[,,t+1],
+        xfilt[,t],
+        Vfilt[,,t],
+        Vfilt[,,t+1],
+        VVfilt[,,t+1],
+        A[,,m],
+        Q[,,m],
+        B[,,m],
+        u[,,t+1]
+      )
+      
+    }
   }
+  
+  VVsmooth[,,] = matrix(0L,ss,ss)
+  
+  return(list(xsmooth=xsmooth, Vsmooth=Vsmooth, VVsmooth=VVsmooth, loglik=loglik))
   
 }
 
@@ -300,7 +342,6 @@ ricSW <- function(x,q,r,p){
   
   return(list(A=A, C=C, Q=Q, R=R, initx=initx, initV=initV, Mx=Mx, Wx=Wx))
 }
-
 
 center <- function(x){
   T <- dim(x)[1]
