@@ -66,6 +66,7 @@ kalman_filter_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   
   loglik <- 0
   
+  'BURADA m DEĞERİNİ 0 ALGILIYOR ! '
   for (t in 1:T){
     m <- model[t]
     if (t == 1){
@@ -93,7 +94,7 @@ kalman_filter_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
         'initial', 
         initial
       )
-      x[,t,drop=FALSE] <- result_kud$xnew
+      x[,t] <- result_kud$xnew
       V[,,t] <- result_kud$Vnew
       LL <- result_kud$loglik
       VV[,,t] <-  result_kud$VVnew

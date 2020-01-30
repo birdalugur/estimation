@@ -49,7 +49,7 @@ kalman_update_diag <- function(A, C, Q, R, y, x, V, ...){
     if (isempty(u)){
       xpred <- x
     }
-    else { 'BURA KONTROL EDİLECEK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+    else { 
       xpred <- x + (B %*% u)
     }
     Vpred <- V
@@ -65,14 +65,33 @@ kalman_update_diag <- function(A, C, Q, R, y, x, V, ...){
   }
   
   e <- y - C %*% xpred  # error (innovation)
-  n <- length(e)
-  ss <- length(A)
+  n <- max(size(e))
+  ss <- max(size(A))
   
   d <- size(e,1)
   
-  S <- C %*% Vpred %*% t(C) + R
+  S <- (C %*% Vpred %*% t(C)) + R
   
-  GG <- t(C)
+  GG <- t(C) %*% diag(1 / diag(R)) %*% C
+  
+  Sinv <- diag(1/diag(R)) - diag(1/diag(R)) %*% C %*% pinv(diag(ss)+(Vpred %*% GG)) %*% Vpred %*% t(C) %*% diag(1/diag(R)) # works only with R diagonal
     
+  # Sinv = inv(S);
+  
+  detS <- prod(diag(R)) %*% det(diag(ss) + Vpred %*% GG)
+  
+  denom <- (2*pi)^(d/2)*sqrt(abs(detS))
+  
+  mahal <- apply(t(e) %*% Sinv%*%e,1, sum)
+  
+  loglik = -0.5%*%mahal - log(denom)
+  
+  K <- Vpred %*% t(C) %*% Sinv; # Kalman gain matrix
+
+  # If there is no observation vector, set K = zeros(ss).
+  xnew <- xpred + K %*% e;              # csi_est(t\t) formula 13.6. 5    
+  Vnew <- (diag(ss) - K%*%C)%*%Vpred;    # P(t\t) formula 13.2.16 hamilton
+  VVnew <- (diag(ss) - K%*%C)%*%A%*%V;
+  
   return(list(xnew=xnew, Vnew=Vnew, loglik=loglik, VVnew=VVnew))
 }

@@ -30,7 +30,7 @@ smooth_update <- function(xsmooth_future, Vsmooth_future,xfilt, Vfilt,  Vfilt_fu
   }
   
   Vpred <- A %*% Vfilt %*% t(A) + Q  # Vpred = Cov[X(t+1) | t]
-  
+  #browser()
   J <- Vfilt %*% t(A) %*% pinv(Vpred) # smoother gain matrix
   
   xsmooth <- xfilt + J %*% (xsmooth_future - xpred)

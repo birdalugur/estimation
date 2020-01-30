@@ -1,4 +1,4 @@
-setwd("/home/ugur/r_projects/estimation/")
+setwd("/home/ugur/r-projects/estimation/")
 library(pracma)
 library(Matrix)
 library(RSpectra)
@@ -120,6 +120,7 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   xx[is.nan(x)] = 0 # missing data are assigned an arbitrary value...
   
   #  Run the kalman smoother on the time varying state space model
+  #browser()
   ksd_result <- kalman_smoother_diag(t(xx),AA, CC, QQ, RR, initx, initV,'model',1:T)
   xsmooth <- ksd_result$xsmooth
   Vsmooth <- ksd_result$Vsmooth

@@ -38,9 +38,9 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   
   # Forward pass
   kfd_result <- kalman_filter_diag(y, A, C, Q, R, init_x, init_V, 'model', model, 'u', u, 'B', B)  #burda kaldık
-  xfilt  <- kfd_result$xfilt
-  Vfilt  <- kfd_result$Vfilt
-  VVfilt <- kfd_result$VVfilt
+  xfilt  <- kfd_result$x
+  Vfilt  <- kfd_result$V
+  VVfilt <- kfd_result$VV
   loglik <- kfd_result$loglik
   
   'KONTROL EDİLECEK !!!!!!!!!!!!!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<< LINE 171'
@@ -48,9 +48,10 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   xsmooth[,T] = xfilt[,T]
   Vsmooth[,,T] = Vfilt[,,T]
   #VVsmooth[,,T] = Vfilt[,,T]
-  
+  #browser()
   for (t in T:1) {
     m <- model[t+1]
+    print(A[,,m])
     if (isempty(B)){
       result_s_update = smooth_update(
         xsmooth[,t+1,drop=FALSE],
