@@ -43,7 +43,7 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   VVfilt <- kfd_result$VV
   loglik <- kfd_result$loglik
   
-  'KONTROL EDİLECEK !!!!!!!!!!!!!!!!!!!!!!!!!!!! <<<<<<<<<<<<<<<<<<<<<<<<<<<<< LINE 171'
+  
   # Backward pass
   xsmooth[,T] = xfilt[,T]
   Vsmooth[,,T] = Vfilt[,,T]

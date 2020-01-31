@@ -1,26 +1,3 @@
-setwd("/home/ugur/r-projects/estimation/")
-library(pracma)
-library(Matrix)
-library(RSpectra)
-library(rmatio)
-
-
-data<-read.mat('data.mat')
-x <- data$X
-p <- data$p
-q <- data$q
-r <- data$r
-
-source('center.R')
-source('kalman_filter_diag.R')
-source('kalman_smoother_diag.R')
-source('kalman_update_diag.R')
-source('ricSW.R')
-source('smooth_update.R')
-
-
-
-
 FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
   "
   x <- matrix(1:12, nrow = 3, ncol = 4)

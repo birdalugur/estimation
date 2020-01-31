@@ -48,7 +48,7 @@ ricSW <- function(x,q,r,p){
   
   F <- x%*%v  # PC estimates of the common factors
   
-  ' cov fonksiyonu aynı girdiye farklı çıktılar verebilir(matlab cov dan farklı) !'
+  
   R <- diag(diag(cov((x-x%*%v%*%t(v))))) #Estimate of the covariance matrix of the idiosincratic component
   # REMARK: x*v*v' is the projection of x over the principal components (F=x*v)
   

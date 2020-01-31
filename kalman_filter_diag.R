@@ -66,7 +66,7 @@ kalman_filter_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   
   loglik <- 0
   
-  'BURADA m DEĞERİNİ 0 ALGILIYOR ! '
+  
   for (t in 1:T){
     m <- model[t]
     print(m)
@@ -125,7 +125,7 @@ kalman_filter_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
         VV[,,t] <- result_kud$VVnew
       }
       else{
-        "ndx köşeli parantez kontrol edilecek <- <<-< -< -<- -< -<- -<- <- -<- -<-<--<-<-<-<-<-<--<-<-<-<--<-<-<-<--<"
+        
         i <- ndx[t]
         # copy over all elements; only some will get updated
         x[,t] <- prevx
