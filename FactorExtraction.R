@@ -49,14 +49,14 @@ FactorExtraction <- function(x,q,r,p,A,C,Q,R,initX,initV,ss,MM){
     z <- x[1:selected_num_row,] # so z is the matrix with # of rows = T-m (all rows with any NaNs are excluded)
     ss <- apply(z, 2, sd) # computes stdev of each column of data.
     MM <- apply(z, 2, mean)
-    
+      
     # STEP:  Standardize the panel
     s <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(ss)
     M <- matrix(1, nrow = T, ncol = length(ss)) %*% diag(MM)
     x = (x - M)/s
     z <- x[1:selected_num_row,]
     
-    
+
     result_ricsw <- ricSW(z,q,r,p)
     A <- result_ricsw$A
     C <- result_ricsw$C

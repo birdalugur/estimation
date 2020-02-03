@@ -19,13 +19,14 @@ ricSW <- function(x,q,r,p){
   nlag <- p-1 # p=1, so nlag = 0.
   
   # Define some preliminary quantity that are necessary to writhe the VAR in companion form
-  A_temp <- matrix(0L, nrow = r, ncol = r*p)  # a zero matrix,
+  A_temp <- t(matrix(0L, nrow = r, ncol = r*p))  # a zero matrix,
   I <- diag(r*p) # identity matrix,
   
   # NOTE: if p=1, then I(1:end-r,1:end) is empty. In this case, MATLAB reads A as equal to A_temp.
   end_I <- dim(I)[1]-r
+  
   if (end_I != 0){
-    A <- rbind(t(A_temp),I[1:end_I-r,])
+    A <- rbind(t(A_temp),I[1:end_I,])
   }
   else{
     A <- rbind(t(A_temp),I[0,])
@@ -42,7 +43,10 @@ ricSW <- function(x,q,r,p){
   # v is a nxr matrix of the eigenvectors that corresponds to the eigenvalues.
   d <- diag(length(result_eigs$values))*result_eigs$values
   v <- result_eigs$vectors
-  v[,1]=v[,1]*-1
+  
+  'eigs fonksiyonunun döndürdüğü matriste, (son sütun haricindeki) sütunlardaki değerlerin işareti,
+  matlab eigs fonksiyonunun tersi olduğundan -1 ile çarpıldı ! (v değişkeni)'
+  v[,1:(size(v)[2]-1)]=v[,1:(size(v)[2]-1)]*-1
   
   
   
@@ -57,13 +61,13 @@ ricSW <- function(x,q,r,p){
     z = F
     #Z<-matrix(, nrow = size(z)[1], ncol = 0)
     Z <- c()
-    for (kk in 1:1){
+    for (kk in 1:p){
       Z <- cbind(Z,z[(p-kk+1):(size(z)[1]-kk),]) # stacked regressors (lagged SPC)
     }
     ##############################################
     z<-z[(p+1):size(z)[1],]
     A_temp <- (inv(t(Z)%*%Z)%*%t(Z))%*%z #OLS estimator of the VAR transition matrix
-    A[1:r,1:r*p] = t(A_temp) 
+    A[1:r,1:(r*p)] = t(A_temp) 
     
     # Compute Q
     e <- z-Z%*%A_temp # VAR residuals
@@ -75,7 +79,7 @@ ricSW <- function(x,q,r,p){
     }
     else{ 'Bu blok kontrol edilmeli '
       # The covariance matrix of the VAR residuals has reduced rank
-      res_ed <- eigs(H,k=2,which = "LM") # eigenvalue decomposition
+      res_ed <- eigs(H,k=q,which = "LM") # eigenvalue decomposition
       P <- res_ed$vectors
       M <- res_ed$values
       M <- diag(length(M))*M
@@ -83,8 +87,12 @@ ricSW <- function(x,q,r,p){
       # P<- matrix(c(-0.9530,0.3029,-0.3029,-0.9530), nrow = 2,ncol = 2,byrow = TRUE) 
       # M<-matrix(c(1.7018,0,0,1.1271),nrow = 2,ncol = 2)
       
-      P <- e%*%P%*%diag(sign(P[1,]))
-      M ^ (-0.5)
+      P <- P%*%diag(sign(P[1,]))
+      over_M <- (M ^ (-0.5))
+      "Inf değerler 0 olarak değiştirildi !! ! "
+      over_M[!is.finite(over_M)] <- 0
+      
+      u_orth <- e %*% P %*% over_M
       
       "matrix power- (+) tamsayı olmayan k değerinden dolayı hatalı sonuç vermekte"
       'https://www.rdocumentation.org/packages/expm/versions/0.999-4/topics/matpow'

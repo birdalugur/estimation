@@ -13,7 +13,7 @@ source('smooth_update.R')
 source('FactorExtraction.R')
 
 
-data<-read.mat('data.mat')
+data<-read.mat('testdata.mat')
 x <- data$X
 p <- data$p
 q <- data$q
