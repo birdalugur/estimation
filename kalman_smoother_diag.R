@@ -51,7 +51,6 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   #browser()
   for (t in (T-1):1) {
     m <- model[t+1]
-    print(A[,,m])
     if (isempty(B)){
       result_s_update = smooth_update(
         xsmooth[,t+1,drop=FALSE],
@@ -82,7 +81,7 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
         A[,,m],
         Q[,,m],
         B[,,m],
-        u[,,t+1]
+        u[,t+1]
       )
       #xsmooth[,t,drop=FALSE] <- result_s_update$xsmooth
       xsmooth[,t] <- result_s_update$xsmooth
@@ -92,7 +91,7 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
     }
   }
   
-  VVsmooth[,,] = matrix(0L,ss,ss)
+  VVsmooth[,,1] = matrix(0L,ss,ss)
   
   return(list(xsmooth=xsmooth, Vsmooth=Vsmooth, VVsmooth=VVsmooth, loglik=loglik))
   

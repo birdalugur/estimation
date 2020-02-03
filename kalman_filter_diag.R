@@ -69,8 +69,6 @@ kalman_filter_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   
   for (t in 1:T){
     m <- model[t]
-    print(m)
-    print('-----------------')
     print(A[, ,m])
     if (t == 1){
       # prevx <- init_x[,m]
