@@ -37,7 +37,7 @@ kalman_smoother_diag <- function(y, A, C, Q, R, init_x, init_V, ...){
   VVsmooth <- (array(c(0),dim = c(ss,ss,T)))
   
   # Forward pass
-  kfd_result <- kalman_filter_diag(y, A, C, Q, R, init_x, init_V, 'model', model, 'u', u, 'B', B)  #burda kaldık
+  kfd_result <- kalman_filter_diag(y, A, C, Q, R, init_x, init_V, 'model', model, 'u', u, 'B', B)
   xfilt  <- kfd_result$x
   Vfilt  <- kfd_result$V
   VVfilt <- kfd_result$VV
